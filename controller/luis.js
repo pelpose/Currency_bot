@@ -11,6 +11,7 @@ exports.startDialog = function (bot) {
 	
 	bot.dialog('WelcomeIntents', [
         function (session, args, next) {
+            if (!language(session)) {
             session.dialogData.args = args || {};        
             if (!session.conversationData["username"]) {
                 builder.Prompts.text(session, "please tell me your name.");   		
@@ -18,30 +19,59 @@ exports.startDialog = function (bot) {
 				session.send("Hello "+session.conversationData["username"]);
                 next(); // Skip if we already have this info.
             }
-        },
+        }},
         function (session, results, next) {
-
+            if (!language(session)) {
                 if (results.response) {
                     session.conversationData["username"] = results.response;
-					
-					//builder.Prompts.text(session, "What is your base currency?."); 
-					
-					//session.send("Hello "+session.conversationData["username"]+" Welcome!");
 					userDB.showBaseCurrency(session, session.conversationData["username"]);
                 }
                 
-            
+            }
         },
 		
     ]).triggerAction({
         matches: 'WelcomeIntents'
     });
-	
-	bot.dialog('Currency', function (session, args) {
+	bot.dialog('compareCurrency', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter a username to setup your account.");
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results,next) {
+            
+            //Add this code in otherwise your username will not work.
+            if (results.response) {
+                session.conversationData["username"] = results.response;
+            }
+    
+            session.send("You want to delete one of your favourite foods.");
+    
+            // Pulls out the food entity from the session if it exists
+            var foodEntity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'food');
+    
+            // Checks if the for entity was found
+            if (foodEntity) {
+                session.send('Deleting \'%s\'...', foodEntity.entity);
+                food.deleteFavouriteFood(session,session.conversationData['username'],foodEntity.entity); //<--- CALLL WE WANT
+            } else {
+                session.send("No food identified! Please try again");
+            }
+        
+    
+    }]).triggerAction({
+        matches: 'compareCurrency'
+    });
+    /*
+	bot.dialog('compareCurrency', function (session, args) {
         if (!language(session)) {
 
            // Pulls out the food entity from the session if it exists
-            var currencyValue = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency1');
+            var currencyValue = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency');
 
             // Checks if the for entity was found
             if (currencyValue) {
@@ -50,11 +80,12 @@ exports.startDialog = function (bot) {
 
             } else {
                 session.send("fuck my life");
+                console.log( currencyValue.entity);
             }
 		}
     }).triggerAction({
-        matches: 'Currency'
-    });
+        matches: 'compareCurrency'
+    });*/
 		
 	bot.dialog('qna', function (session, args) {
         if (!language(session)) {
@@ -75,4 +106,6 @@ exports.startDialog = function (bot) {
         return false;
     }
 }
+
+
 }

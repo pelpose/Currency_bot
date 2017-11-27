@@ -10,7 +10,8 @@ exports.checkBaseCurrency = function getBaseCurrency(session, username){
 
 function handleCurrency(message, session, username) {
     var userInfo = JSON.parse(message);
-    var currency = [];
+    var newCurrency;
+    var newUser;
     for (var index in userInfo) {
         var usernameReceived = userInfo[index].username;
         var userCurrency = userInfo[index].Basecurrency;
@@ -18,12 +19,18 @@ function handleCurrency(message, session, username) {
         //Convert to lower case whilst doing comparison to ensure the user can type whatever they like
         if (username.toLowerCase() === usernameReceived.toLowerCase()) {
             //Add a comma after all favourite foods unless last one
-                currency.push(userCurrency);
+            newCurrency = userCurrency;
+            newUser = usernameReceived;
         }        
     
     }
+    if(newCurrency == null || newUser == null) {
+        newCurrency ="NZD";
+        newUser = username.toLowerCase();
+        rest.postCurrency(url, newUser, newCurrency);
+    }
     // Print all favourite foods for the user that is currently logged in
-    session.send("%s, your Base Currency is: %s", username, currency);                
+    session.send("Hello %s, your Base Currency is: %s", username, newCurrency);                
     
 }
 

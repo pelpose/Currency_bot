@@ -35,6 +35,29 @@ exports.getFavouriteFood = function getData(url, session, username, callback){
 };
 
 
+exports.postCurrency = function getData(url, newUser, currency){
+    var options = {
+        url: url,
+        method: 'POST',
+        headers: {
+            'ZUMO-API-VERSION': '2.0.0',
+            'Content-Type':'application/json'
+        },
+        json: {
+            "username" : newUser,
+            "Basecurrency" : currency
+        }
+      };
+      
+      request(options, function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            console.log(body);
+        }
+        else{
+            console.log(error);
+        }
+      });
+};
 
 exports.postFavouriteFood = function getData(url, username, favouriteFood){
     var options = {
