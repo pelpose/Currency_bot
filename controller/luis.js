@@ -1,4 +1,5 @@
 var builder = require('botbuilder');
+var currency = require('../api/currency');
 // Some sections have been omitted
 
 exports.startDialog = function (bot) {
@@ -8,17 +9,48 @@ exports.startDialog = function (bot) {
     bot.recognizer(recognizer);
 	
 	bot.dialog('WelcomeIntents', function (session, args) {
+		if (!language(session)) {
             session.send("WelcomeIntent intent found");
+		}
     }).triggerAction({
         matches: 'WelcomeIntents'
     });
 	
-	bot.dialog('CurrencyIntents', function (session, args) {
+	bot.dialog('Currency', function (session, args) {
+        if (!language(session)) {
+           // Pulls out the food entity from the session if it exists
+            var currencyValue = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency1');
 
+            // Checks if the for entity was found
+            if (currencyValue) {
+                session.send('testing in %s...', currencyValue.entity);
+                currency.displayCurrencyCards(session);
 
-                session.send('Looking for restaurants which sell %s...', foodEntity.entity);
-                restaurant.displayRestaurantCards(foodEntity.entity, "auckland", session);
+            } else {
+                session.send("fuck my life");
+            }
+		}
     }).triggerAction({
-        matches: 'WantFood'
+        matches: 'Currency'
     });
+		
+	bot.dialog('qna', function (session, args) {
+        if (!language(session)) {
+            session.send("qna intent found");
+		}
+    }).triggerAction({
+        matches: 'qna'
+    });
+	
+	function language(session) { 
+    var msg = session.message.text;
+    if ((session.message.attachments && session.message.attachments.length > 0) || msg.includes("ㄱㄱ")) {
+		session.send("ㄱㄱ");
+
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 }
