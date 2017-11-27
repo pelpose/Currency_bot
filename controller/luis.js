@@ -1,6 +1,6 @@
 var builder = require('botbuilder');
 var currency = require('../api/currency');
-var userDB = require('../controller/userDB');
+var userDB= require('../controller/userDB');
 // Some sections have been omitted
 
 exports.startDialog = function (bot) {
@@ -13,8 +13,9 @@ exports.startDialog = function (bot) {
         function (session, args, next) {
             session.dialogData.args = args || {};        
             if (!session.conversationData["username"]) {
-                builder.Prompts.text(session, "Enter a username to setup your account.");                
+                builder.Prompts.text(session, "please tell me your name.");   		
             } else {
+				session.send("Hello "+session.conversationData["username"]);
                 next(); // Skip if we already have this info.
             }
         },
@@ -22,20 +23,16 @@ exports.startDialog = function (bot) {
 
                 if (results.response) {
                     session.conversationData["username"] = results.response;
+					
+					//builder.Prompts.text(session, "What is your base currency?."); 
+					
+					//session.send("Hello "+session.conversationData["username"]+" Welcome!");
+					userDB.showBaseCurrency(session, session.conversationData["username"]);
                 }
-                // Pulls out the food entity from the session if it exists
-                var foodEntity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'currency1');
-    
-                // Checks if the food entity was found
-                if (foodEntity) {
-                    session.send('Thanks for telling me that \'%s\' is your favourite food', foodEntity.entity);
-                    userDB.sendFavouriteFood(session, session.conversationData["username"], foodEntity.entity); // <-- LINE WE WANT
-    
-                } else {
-                    session.send("No food identified!!!");
-                }
+                
             
-        }
+        },
+		
     ]).triggerAction({
         matches: 'WelcomeIntents'
     });

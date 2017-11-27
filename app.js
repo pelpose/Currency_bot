@@ -21,8 +21,7 @@ resServer.post('/api/messages', connector.listen());
 var bot = new builder.UniversalBot(connector, function (session) {
 
     session.send('Sorry, I didnt understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
-});
-
+}); 	
 // This line will call the function in your LuisDialog.js file
 luis.startDialog(bot);
 
