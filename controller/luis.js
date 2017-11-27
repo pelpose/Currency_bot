@@ -1,5 +1,6 @@
 var builder = require('botbuilder');
 var currency = require('../api/currency');
+var userDB = require('../controller/userDB');
 // Some sections have been omitted
 
 exports.startDialog = function (bot) {
@@ -8,16 +9,40 @@ exports.startDialog = function (bot) {
     
     bot.recognizer(recognizer);
 	
-	bot.dialog('WelcomeIntents', function (session, args) {
-		if (!language(session)) {
-            session.send("WelcomeIntent intent found");
-		}
-    }).triggerAction({
+	bot.dialog('WelcomeIntents', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};        
+            if (!session.conversationData["username"]) {
+                builder.Prompts.text(session, "Enter a username to setup your account.");                
+            } else {
+                next(); // Skip if we already have this info.
+            }
+        },
+        function (session, results, next) {
+
+                if (results.response) {
+                    session.conversationData["username"] = results.response;
+                }
+                // Pulls out the food entity from the session if it exists
+                var foodEntity = builder.EntityRecognizer.findEntity(session.dialogData.args.intent.entities, 'currency1');
+    
+                // Checks if the food entity was found
+                if (foodEntity) {
+                    session.send('Thanks for telling me that \'%s\' is your favourite food', foodEntity.entity);
+                    userDB.sendFavouriteFood(session, session.conversationData["username"], foodEntity.entity); // <-- LINE WE WANT
+    
+                } else {
+                    session.send("No food identified!!!");
+                }
+            
+        }
+    ]).triggerAction({
         matches: 'WelcomeIntents'
     });
 	
 	bot.dialog('Currency', function (session, args) {
         if (!language(session)) {
+
            // Pulls out the food entity from the session if it exists
             var currencyValue = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency1');
 
