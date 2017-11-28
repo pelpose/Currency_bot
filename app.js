@@ -17,10 +17,10 @@ var connector = new builder.ChatConnector({
 // Listen messages from the user 
 resServer.post('/api/messages', connector.listen());
 
-// Receive messages from the user
+// Sending response to the user
 var bot = new builder.UniversalBot(connector, function (session) {
 
-    session.send('Sorry, I didnt understand \'%s\'. Type \'help\' if you need assistance.', session.message.text);
+    session.send('Sorry, I dont understand \'%s\', Please type \'help\' or \'Qna\' for a help.', session.message.text);
 }); 	
 // This line will call the function in your LuisDialog.js file
 luis.startDialog(bot);

@@ -1,20 +1,18 @@
 var request = require('request');
 
 
-exports.getCurrency = function getData(url, session,  callback){
+exports.getCurrency = function getData(url, session, currency, callback){
 
     request.get(url, function processGetRequest(err,res,body){
         if(err){
             console.log(err);
         }else {
-            callback(body, session);
+            callback(body, currency, session);
         }
     });
 };
 
-
-
-exports.getBaseCurrency = function getData(url, session, username, callback){
+exports.tossUserInfo = function getData(url, session, username, callback){
     request.get(url, {'headers':{'ZUMO-API-VERSION': '2.0.0'}}, function(err,res,body){
         if(err){
             console.log(err);
@@ -24,18 +22,18 @@ exports.getBaseCurrency = function getData(url, session, username, callback){
     });
 };
 
-exports.getFavouriteFood = function getData(url, session, username, callback){
+exports.changeUserInfo = function getData(url, session, username, newcurrency, callback){
     request.get(url, {'headers':{'ZUMO-API-VERSION': '2.0.0'}}, function(err,res,body){
         if(err){
             console.log(err);
         }else {
-            callback(body, session, username);
+            callback(body, session, username, newcurrency);
         }
     });
 };
 
-
-exports.postCurrency = function getData(url, newUser, currency){
+//add new User in DB
+exports.postUser = function getData(url, newUser, currency){
     var options = {
         url: url,
         method: 'POST',
@@ -59,26 +57,22 @@ exports.postCurrency = function getData(url, newUser, currency){
       });
 };
 
-exports.postFavouriteFood = function getData(url, username, favouriteFood){
+exports.deleteUser = function deleteData(url,session, username, id){
     var options = {
-        url: url,
-        method: 'POST',
+        url: url + "\\" + id,
+        method: 'DELETE',
         headers: {
             'ZUMO-API-VERSION': '2.0.0',
             'Content-Type':'application/json'
-        },
-        json: {
-            "username" : username,
-            "favouriteFood" : favouriteFood
         }
-      };
-      
-      request(options, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            console.log(body);
+    };
+
+    request(options,function (err, res, body){
+        if( !err && res.statusCode === 200){
+        }else {
+            console.log(err);
+            console.log(res);
         }
-        else{
-            console.log(error);
-        }
-      });
+    })
+
 };

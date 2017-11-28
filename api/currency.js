@@ -1,116 +1,65 @@
 var rest = require('../controller/restclient');
 var builder = require('botbuilder');
+var currencyValue;
 
 //display currncy
-exports.displayCurrencyCards = function getCurrency(session){
-    var url = "https://api.fixer.io/latest?base=NZD&symbols=USD";
-
-    rest.getCurrency(url, session,displayCurrencyCards);
+exports.displayCurrency = function getCurrency(currency, baseCurrency, session){
+    var baseCurrency = baseCurrency.toUpperCase();
+    currency =currency.toUpperCase();
+    var url = "https://api.fixer.io/latest?base="+baseCurrency+"&symbols="+currency;
+    console.log(url);
+    rest.getCurrency(url, session,currency, displayCurrency);
 }
 
-function displayCurrencyCards(message, session) {
-	var currencyData = JSON.parse(message);
-	
-	var currenyInfo = currencyData.rates;
-	var test = currenyInfo.USD.toString();
-	var currenyItems =[];
-        var currenyItem = {};
-        currenyItem.title = "USD";
-        currenyItem.value = test;
-        currenyItems.push(currenyItem);
-		//Displays nutrition adaptive cards in chat box 
-    session.send(new builder.Message(session).addAttachment({
-        contentType: "application/vnd.microsoft.card.adaptive",
-        content: {
-            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-            "type": "AdaptiveCard",
-            "version": "0.5",
-            "body": [
-                {
-                    "type": "Container",
-                    "items": [
-                        {
-                            "type": "TextBlock",
-                            "text": "NZD",
-                            "size": "large"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "text": "Currency Information"
-                        }
-                    ]
-                },
-                {
-                    "type": "Container",
-                    "spacing": "none",
-                    "items": [
-                        {
-                            "type": "ColumnSet",
-                            "columns": [
-                                {
-                                    "type": "Column",
-                                    "width": "auto",
-                                    "items": [
-                                        {
-                                            "type": "FactSet",
-                                            "facts": currenyItems
+function displayCurrency(message, currency, session) {
+    var currencyData = JSON.parse(message);
+    var currenyInfo = currencyData.rates;
+    var result = currenyInfo.USD;//get Curreny rate from API
+    // check the result is null
+    if(!result){
+        var result = currenyInfo.AUD;
+        if(!result){
+            var result = currenyInfo.NZD;
+            if(!result){
+                var result = currenyInfo.KOR;
+                if(!result){
+                    var result = currenyInfo.BGN;
+                    if(!result){
+                        var result = currenyInfo.BRL;
+                        if(!result){
+                            var result = currenyInfo.CAD;
+                            if(!result){
+                                var result = currenyInfo.CZK;
+                                if(!result){
+                                    var result = currenyInfo.IDR;
+                                    if(!result){
+                                        var result = currenyInfo.NOK;
+                                        if(!result){
+                                            var result = currenyInfo.PHP;
+                                            if(!result){
+                                                var result = currenyInfo.RUB;                                               
+                                                if(!result){
+                                                    var result = currenyInfo.THB;
+                                                    if(!result){
+                                                        var result = currenyInfo.CAD;
+                                                    }
+                                                }
+                                            }
                                         }
-                                    ]
+                                    }
                                 }
-                            ]
+                            }
                         }
-                    ]
+                    }
                 }
-            ]
+            }
         }
-    }));
-		
-		
-	/*
-	//Displays nutrition adaptive cards in chat box 
-    session.send(new builder.Message(session).addAttachment({
-        contentType: "application/vnd.microsoft.card.adaptive",
-        content: {
-            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-            "type": "AdaptiveCard",
-            "version": "0.5",
-            "body": [
-                {
-                    "type": "Container",
-                    "items": [
-                        {
-                            "type": "TextBlock",
-                            "text": "NZD",
-                            "size": "large"
-                        },
-                        {
-                            "type": "TextBlock",
-                            "text": "Currency Information"
-                        }
-                    ]
-                },
-                {
-                    "type": "Container",
-                    "spacing": "none",
-                    "items": [
-                        {
-                            "type": "ColumnSet",
-                            "columns": [
-                                {
-                                    "type": "Column",
-                                    "width": "auto",
-                                    "items": [
-                                        {
-                                            "type": "FactSet",
-                                            "facts": currenyItems
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    }));*/
+    }
+    if(!result){
+        session.send("Sorry, can not find Data, Please check your currency.");                                                        
+    }
+    else {
+        currencyValue = result.toString();
+        session.send("Current %s is: %s", currency, currencyValue);
+    }
 }

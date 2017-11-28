@@ -1,14 +1,17 @@
 var rest = require('./restclient');
+var luis = require('./luis');
 var url = 'http://currencybotjsy.azurewebsites.net/tables/User_Table';
 
-exports.showBaseCurrency = function getBaseCurrency(session, username){
-    rest.getBaseCurrency(url, session, username, handleCurrency)
-};
-exports.checkBaseCurrency = function getBaseCurrency(session, username){
-    rest.getBaseCurrency(url, session, username, handleCurrency)
+
+exports.getBaseCurrency = function tossUserInfo(session, username){
+    rest.tossUserInfo(url, session, username, getBaseCurrency)
 };
 
-function handleCurrency(message, session, username) {
+exports.changeCurrency = function changeUserInfo(session, username, newcurrency){
+    rest.changeUserInfo(url, session, username, newcurrency, changeCurrency)
+};
+
+function getBaseCurrency(message, session, username) {
     var userInfo = JSON.parse(message);
     var newCurrency;
     var newUser;
@@ -18,55 +21,36 @@ function handleCurrency(message, session, username) {
 
         //Convert to lower case whilst doing comparison to ensure the user can type whatever they like
         if (username.toLowerCase() === usernameReceived.toLowerCase()) {
-            //Add a comma after all favourite foods unless last one
             newCurrency = userCurrency;
             newUser = usernameReceived;
         }        
     
     }
+    //create new user if this user is not exist in DB
     if(newCurrency == null || newUser == null) {
-        newCurrency ="NZD";
+        newCurrency ="NZD";//defualt value.
         newUser = username.toLowerCase();
-        rest.postCurrency(url, newUser, newCurrency);
+        rest.postUser(url, newUser, newCurrency);
     }
-    // Print all favourite foods for the user that is currently logged in
-    session.send("Hello %s, your Base Currency is: %s", username, newCurrency);                
+    //send fianl data to luis to display.
+    luis.getCurrency(session, newUser, newCurrency);   
     
 }
 
+function changeCurrency(message, session, username, newcurrency) {
+    var userInfo = JSON.parse(message);
+    for (var index in userInfo) {
+        var usernameReceived = userInfo[index].username;
 
-
-exports.displayFavouriteFood = function getFavouriteFood(session, username){
-    rest.getFavouriteFood(url, session, username, handleFavouriteFoodResponse)
-};
-
-exports.sendFavouriteFood = function postFavouriteFood(session, username, favouriteFood){
-	
-    rest.postFavouriteFood(url, username, favouriteFood);
-};
-
-exports.deleteFavouriteFood = function deleteFavouriteFood(session,username,favouriteFood){
-
-    rest.getFavouriteFood(url,session, username,function(message,session,username){
-     var   allFoods = JSON.parse(message);
-
-        for(var i in allFoods) {
-
-            if (allFoods[i].favouriteFood === favouriteFood && allFoods[i].username === username) {
-
-                console.log(allFoods[i]);
-
-                rest.deleteFavouriteFood(url,session,username,favouriteFood, allFoods[i].id ,handleDeletedFoodResponse)
-
-            }
-        }
-
-
-    });
-
-
-};
-
-function handleDeletedFoodResponse(body,session,username, favouriteFood) {
-	console.log('done');
+        //Convert to lower case whilst doing comparison to ensure the user can type whatever they like
+        if (username.toLowerCase() === usernameReceived.toLowerCase()) { 
+            //delete current user and create newuser with newCurrency
+           rest.deleteUser(url,session,username, userInfo[index].id); 
+           rest.postUser(url, username, newcurrency);         
+        }        
+    
+    }
+    //send fianl data to luis to display.
+    luis.getCurrency(session, username, newcurrency);   
+    
 }
