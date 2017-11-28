@@ -70,8 +70,9 @@ exports.deleteUser = function deleteData(url,session, username, id){
     request(options,function (err, res, body){
         if( !err && res.statusCode === 200){
         }else {
-            console.log(err);
-            console.log(res);
+            console.log(url);
+            //console.log(err);
+            //console.log(res);
         }
     })
 

@@ -26,6 +26,36 @@ exports.startDialog = function (bot) {
         matches: 'LeavingIntents'
     });
 
+    //delete Intents
+	bot.dialog('deleteIntents', 
+        function (session, args, next) {
+            session.dialogData.args = args || {};
+            //LogIn if the user is not exist.       
+            if (!session.conversationData["username"]) {
+                session.send("Your not connected.");
+                next();//skip	 		
+            } else {
+                session.send('Deleting User...');
+                //create user if not exist, othwerwise display user name with base currency
+                userDB.deleteUser(session, session.conversationData["username"]);
+            }
+        }		
+    ).triggerAction({
+        matches: 'deleteIntents'
+    });
+
+    //Display my currency
+	bot.dialog('displayCurrency', function (session, args) {
+        if (!session.conversationData["username"]) {
+            builder.Prompts.text(session, "your not login yet, please type 'hi' or 'login' to Login."); 
+        }
+        else{
+            session.send("your Base Currency is : "+session.conversationData["currency"].toUpperCase());
+        }
+    }).triggerAction({
+        matches: 'displayCurrency'
+    });
+
     //Welcom Intents, login method included.
 	bot.dialog('WelcomeIntents', [
         function (session, args, next) {
