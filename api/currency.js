@@ -7,7 +7,6 @@ exports.displayCurrency = function getCurrency(currency, baseCurrency, session){
     var baseCurrency = baseCurrency.toUpperCase();
     currency =currency.toUpperCase();
     var url = "https://api.fixer.io/latest?base="+baseCurrency+"&symbols="+currency;
-    console.log(url);
     rest.getCurrency(url, session,currency, displayCurrency);
 }
 
@@ -55,6 +54,7 @@ function displayCurrency(message, currency, session) {
             }
         }
     }
+    //if the currency is wrong or not in the list
     if(!result){
         session.send("Sorry, can not find Data, Please check your currency.");                                                        
     }

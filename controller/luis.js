@@ -1,6 +1,7 @@
 var builder = require('botbuilder');
 var currency = require('../api/currency');
 var userDB= require('../controller/userDB');
+var qna = require('../api/qna');
 
 exports.startDialog = function (bot) {
     // Luis URL
@@ -89,7 +90,6 @@ exports.startDialog = function (bot) {
         else{
            // Get Currency from the string
             var currencyValue = builder.EntityRecognizer.findEntity(args.intent.entities, 'currency');
-            console.log("test:"+currencyValue.entity);
             // check the currency is exist or not.
             if (currencyValue) {
                 session.send('Caculating Currency...');
@@ -97,13 +97,13 @@ exports.startDialog = function (bot) {
 
             } else {
                 session.send("something is not right, Please try later...");
-                console.log( currencyValue.entity);
             }
         }
     }).triggerAction({
         matches: 'compareCurrency'
     });
     
+    //ChangeCurrency Intents, able to set new base currency.
     bot.dialog('changeCurrency', function (session, args) {
         if (!session.conversationData["username"]) {
             builder.Prompts.text(session, "your not login yet, please type 'hi' or 'login' to Login."); 
@@ -117,18 +117,24 @@ exports.startDialog = function (bot) {
                 userDB.changeCurrency(session, session.conversationData["username"],currencyValue.entity);
             } else {
                 session.send("something is not right, Please try later...");
-                console.log( currencyValue.entity);
             }
         }
     }).triggerAction({
         matches: 'changeCurrency' 
     }); 
 
-	bot.dialog('qna', function (session, args) {
-            session.send("qna intent found");
-    }).triggerAction({
-        matches: 'qna' 
-    });    
+    //QNA Intents,send question to the QNA maker
+	bot.dialog('qna', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};
+            builder.Prompts.text(session, "What is your question?");
+        },
+        function (session, results, next) {
+            qna.tossToQna(session, results.response);
+        }
+    ]).triggerAction({
+        matches: 'qna'
+    }); 
 }
 
 //Get Base Currency from DB

@@ -71,9 +71,30 @@ exports.deleteUser = function deleteData(url,session, username, id){
         if( !err && res.statusCode === 200){
         }else {
             console.log(url);
-            //console.log(err);
-            //console.log(res);
         }
     })
 
 };
+
+exports.sendQuestion = function getData(url, session, question, callback){
+    var options = {
+        url: url,
+        method: 'POST',
+        headers: {
+            'Ocp-Apim-Subscription-Key': 'd7fd3cc7e62f42d1b1eb4598f5d1570a',
+            'Content-Type':'application/json'
+        },
+        json: {
+            "question" : question
+        }
+      };
+  
+      request(options, function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            callback(body, session, question);
+        }
+        else{
+            console.log(error);
+        }
+      });
+  };
