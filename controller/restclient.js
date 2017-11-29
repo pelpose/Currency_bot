@@ -1,13 +1,13 @@
 var request = require('request');
 
 
-exports.getCurrency = function getData(url, session, currency, callback){
+exports.getCurrency = function getData(url, session, currency, baseCurrency, callback){
 
     request.get(url, function processGetRequest(err,res,body){
         if(err){
             console.log(err);
         }else {
-            callback(body, currency, session);
+            callback(body, currency, baseCurrency, session);
         }
     });
 };

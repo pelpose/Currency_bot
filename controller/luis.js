@@ -10,15 +10,15 @@ exports.startDialog = function (bot) {
     bot.recognizer(luisApi);
 
     //QNA Intents,send question to the QNA maker
-	bot.dialog('qna', 
-    function (session, args, next) {
-        session.dialogData.args = args || {};
-        builder.Prompts.text(session, "What is your question?");
-    },
-    function (session, results, next) {
-        qna.tossToQna(session, results.response);
-    }
-    ).triggerAction({
+	bot.dialog('qna', [
+        function (session, args, next) {
+            session.dialogData.args = args || {};
+            builder.Prompts.text(session, "What is your question?");
+        },
+        function (session, results, next) {
+            qna.tossToQna(session, results.response);
+        }
+    ]).triggerAction({
         matches: 'qna'
     }); 
 
@@ -134,8 +134,7 @@ exports.startDialog = function (bot) {
         }
     }).triggerAction({
         matches: 'changeCurrency' 
-    }); 
- 
+    });
 }
 
 //Get Base Currency from DB

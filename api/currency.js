@@ -1,16 +1,15 @@
 var rest = require('../controller/restclient');
 var builder = require('botbuilder');
-var currencyValue;
 
 //display currncy
 exports.displayCurrency = function getCurrency(currency, baseCurrency, session){
     var baseCurrency = baseCurrency.toUpperCase();
     currency =currency.toUpperCase();
     var url = "https://api.fixer.io/latest?base="+baseCurrency+"&symbols="+currency;
-    rest.getCurrency(url, session,currency, displayCurrency);
+    rest.getCurrency(url, session,currency, baseCurrency,displayCurrency);
 }
 
-function displayCurrency(message, currency, session) {
+function displayCurrency(message, currency,baseCurrency, session) {
     var currencyData = JSON.parse(message);
     var currenyInfo = currencyData.rates;
     var result = currenyInfo.USD;//get Curreny rate from API
@@ -59,7 +58,58 @@ function displayCurrency(message, currency, session) {
         session.send("Sorry, can not find Data, Please check your currency.");                                                        
     }
     else {
-        currencyValue = result.toString();
-        session.send("Current %s is: %s", currency, currencyValue);
+        var currenyItems =[];
+        var currenyItem = {};
+        var currencyValue = result.toString();
+        currenyItem.title = currency.toUpperCase();
+        currenyItem.value = currencyValue;
+        currenyItems.push(currenyItem);
+        //display card into chat
+        session.send(new builder.Message(session).addAttachment({
+            contentType: "application/vnd.microsoft.card.adaptive",
+            content: {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "0.5",
+                "body": [
+                    {
+                        "type": "Container",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": baseCurrency.toUpperCase(),
+                                "size": "large"
+                            },
+                            {
+                                "type": "TextBlock",
+                                "text": "Today's Currency rate is :",
+                                "size": "small"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Container",
+                        "spacing": "none",
+                        "items": [
+                            {
+                                "type": "ColumnSet",
+                                "columns": [
+                                    {
+                                        "type": "Column",
+                                        "width": "auto",
+                                        "items": [
+                                            {
+                                                "type": "FactSet",
+                                                "facts": currenyItems
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        }));
     }
 }
