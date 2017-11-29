@@ -76,7 +76,7 @@ exports.deleteUser = function deleteData(url,session, username, id){
 
 };
 
-exports.sendQuestion = function getData(url, session, question, callback){
+exports.sendQuestion = function getData(url, session, qna, callback){
     var options = {
         url: url,
         method: 'POST',
@@ -85,13 +85,13 @@ exports.sendQuestion = function getData(url, session, question, callback){
             'Content-Type':'application/json'
         },
         json: {
-            "question" : question
+            "question" : qna
         }
       };
   
       request(options, function (error, response, body) {
         if (!error && response.statusCode === 200) {
-            callback(body, session, question);
+            callback(body, session, qna);
         }
         else{
             console.log(error);
