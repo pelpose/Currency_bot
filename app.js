@@ -10,8 +10,8 @@ resServer.listen(process.env.port || process.env.PORT || 3978, function () {
 
 // Create chat connector 
 var connector = new builder.ChatConnector({
-    appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
+    appId: "8c63987e-5bbb-4597-b05c-5d7b1b7b5411",
+    appPassword: "zzviaZPNF15084;+guPWR{("
 });
 
 // Listen messages from the user 
