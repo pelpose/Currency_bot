@@ -5,7 +5,7 @@ var qna = require('../api/qna');
 
 exports.startDialog = function (bot) {
     // Luis URL
-    var luisApi = new builder.LuisRecognizer('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/e05a31f2-2201-4527-96af-f9811ab3deeb?subscription-key=b77ec5414a1642738fca9b8b3d23c8b7&verbose=true&timezoneOffset=0&q=');
+    var luisApi = new builder.LuisRecognizer('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/8203944e-a913-4cf8-bdbe-e438ccb58edb?subscription-key=431980836764489595baf9fc1ab23b18&verbose=true&timezoneOffset=0&q=');
     
     bot.recognizer(luisApi);
 
